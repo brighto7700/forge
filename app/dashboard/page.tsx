@@ -5,6 +5,7 @@ import { requireUser, getUserBookmarks } from "../../lib/auth";
 import { createClient } from "../../lib/supabase/server";
 import { CATEGORIES, DIFFICULTY_COLORS } from "../../lib/scripts";
 
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Dashboard — Forge",
   description: "Your saved configs, bookmarked scripts, and guide progress.",
