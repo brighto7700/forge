@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getScriptBySlug, getAllScripts, CATEGORIES, DIFFICULTY_COLORS } from "@/lib/scripts";
+import {
+  getScriptBySlug,
+  getAllScriptSlugs,
+  CATEGORIES,
+  DIFFICULTY_COLORS,
+} from "../../../lib/scripts";
 import { CopyButton } from "./CopyButton";
 
 // ── Static Params (SSG) ───────────────────────────────
-// Pre-renders every script page at build time → blazing fast + SEO perfect
 export async function generateStaticParams() {
   const slugs = await getAllScriptSlugs();
   return slugs.map((slug) => ({ slug }));
@@ -52,7 +56,11 @@ export async function generateMetadata({
 }
 
 // ── JSON-LD ───────────────────────────────────────────
-function ScriptJsonLd({ script }: { script: Awaited<ReturnType<typeof getScriptBySlug>> }) {
+function ScriptJsonLd({
+  script,
+}: {
+  script: Awaited<ReturnType<typeof getScriptBySlug>>;
+}) {
   if (!script) return null;
 
   const jsonLd = {
@@ -70,7 +78,7 @@ function ScriptJsonLd({ script }: { script: Awaited<ReturnType<typeof getScriptB
     datePublished: script.created_at,
     author: {
       "@type": "Person",
-      name: "Bright Emmanuel",
+      name: "Bright",
       url: "https://forge.brgt.site",
     },
     keywords: script.tags.join(", "),
@@ -85,7 +93,11 @@ function ScriptJsonLd({ script }: { script: Awaited<ReturnType<typeof getScriptB
 }
 
 // ── Breadcrumb JSON-LD ────────────────────────────────
-function BreadcrumbJsonLd({ script }: { script: NonNullable<Awaited<ReturnType<typeof getScriptBySlug>>> }) {
+function BreadcrumbJsonLd({
+  script,
+}: {
+  script: NonNullable<Awaited<ReturnType<typeof getScriptBySlug>>>;
+}) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -142,11 +154,18 @@ export default async function ScriptPage({
           className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-2"
           aria-label="Main navigation"
         >
-          <Link href="/" className="font-mono text-primary font-bold text-base" aria-label="Forge home">
+          <Link
+            href="/"
+            className="font-mono text-primary font-bold text-base"
+            aria-label="Forge home"
+          >
             forge_
           </Link>
           <span className="text-border">/</span>
-          <Link href="/vault" className="text-text-muted text-sm hover:text-text-base transition-colors">
+          <Link
+            href="/vault"
+            className="text-text-muted text-sm hover:text-text-base transition-colors"
+          >
             vault
           </Link>
           <span className="text-border">/</span>
@@ -157,13 +176,23 @@ export default async function ScriptPage({
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-12">
-
         {/* Breadcrumb (visible) */}
         <nav aria-label="Breadcrumb" className="mb-8">
           <ol className="flex items-center gap-2 text-xs text-text-muted font-mono">
-            <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
+            <li>
+              <Link href="/" className="hover:text-primary transition-colors">
+                Home
+              </Link>
+            </li>
             <li aria-hidden="true">/</li>
-            <li><Link href="/vault" className="hover:text-primary transition-colors">Vault</Link></li>
+            <li>
+              <Link
+                href="/vault"
+                className="hover:text-primary transition-colors"
+              >
+                Vault
+              </Link>
+            </li>
             <li aria-hidden="true">/</li>
             <li className="text-text-base">{script.title}</li>
           </ol>
@@ -172,10 +201,16 @@ export default async function ScriptPage({
         {/* Header */}
         <section aria-labelledby="script-title" className="mb-10">
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="text-sm" aria-hidden="true">{category?.icon}</span>
-            <span className="text-xs font-mono text-text-muted">{category?.label}</span>
+            <span className="text-sm" aria-hidden="true">
+              {category?.icon}
+            </span>
+            <span className="text-xs font-mono text-text-muted">
+              {category?.label}
+            </span>
             <span className="text-border">·</span>
-            <span className={`text-xs font-mono px-2 py-0.5 rounded border ${diffColor}`}>
+            <span
+              className={`text-xs font-mono px-2 py-0.5 rounded border ${diffColor}`}
+            >
               {script.difficulty}
             </span>
           </div>
@@ -205,7 +240,7 @@ export default async function ScriptPage({
           )}
         </section>
 
-        {/* Curl install — the hero block */}
+        {/* Curl install */}
         <section aria-labelledby="install-heading" className="mb-10">
           <h2
             id="install-heading"
@@ -244,10 +279,15 @@ export default async function ScriptPage({
             <p>{script.description}</p>
             {script.chipset_compat?.length > 0 && (
               <div className="flex items-center gap-2 pt-2 border-t border-border">
-                <span className="text-xs font-mono text-text-faint">Compatible chipsets:</span>
+                <span className="text-xs font-mono text-text-faint">
+                  Compatible chipsets:
+                </span>
                 <div className="flex flex-wrap gap-2">
                   {script.chipset_compat.map((chip) => (
-                    <span key={chip} className="text-xs font-mono text-text-muted border border-border px-2 py-0.5 rounded">
+                    <span
+                      key={chip}
+                      className="text-xs font-mono text-text-muted border border-border px-2 py-0.5 rounded"
+                    >
                       {chip}
                     </span>
                   ))}
@@ -268,7 +308,9 @@ export default async function ScriptPage({
           </h2>
           <div className="surface-card p-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm text-text-base font-mono">{script.slug}.sh</p>
+              <p className="text-sm text-text-base font-mono">
+                {script.slug}.sh
+              </p>
               <p className="text-xs text-text-muted mt-1">
                 Hosted on GitHub — inspect before running
               </p>
@@ -297,7 +339,10 @@ export default async function ScriptPage({
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8 px-4 mt-8" role="contentinfo">
+      <footer
+        className="border-t border-border py-8 px-4 mt-8"
+        role="contentinfo"
+      >
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xs text-text-muted font-mono">
             forge.brgt.site — built on android ✦
@@ -306,4 +351,4 @@ export default async function ScriptPage({
       </footer>
     </>
   );
-}
+        }
