@@ -1,0 +1,113 @@
+---
+title: "Getting Started with Termux on Android"
+description: "Set up a full Linux development environment on your Android phone in under 10 minutes. No root required."
+track: "getting-started"
+difficulty: "beginner"
+tags: ["termux", "android", "setup", "linux", "beginner"]
+published: true
+publishedAt: "2024-01-01"
+---
+
+## What you'll have by the end
+
+A working Linux terminal on your Android phone with package management, storage access, and SSH keys — ready to install any language runtime or dev tool.
+
+**Time:** ~10 minutes  
+**Requirements:** Android 7.0+, F-Droid (recommended)
+
+---
+
+## Step 1 — Install Termux
+
+Skip the Play Store version — it's outdated. Get Termux from F-Droid instead.
+
+1. Open [f-droid.org](https://f-droid.org) in your browser
+2. Download and install the F-Droid app
+3. Search for **Termux** and install it
+
+> **Why F-Droid?** The Google Play version of Termux hasn't been updated since 2020. The F-Droid version is actively maintained and receives regular updates.
+
+---
+
+## Step 2 — First launch
+
+Open Termux. You'll see a bare terminal prompt. Let's get it updated.
+
+```bash
+pkg update && pkg upgrade -y
+```
+
+This updates all base packages. It'll take a minute — let it run.
+
+---
+
+## Step 3 — Grant storage access
+
+```bash
+termux-setup-storage
+```
+
+Tap **Allow** when the permission dialog appears. After this, your storage is mounted at `~/storage/`.
+
+---
+
+## Step 4 — Install essential tools
+
+```bash
+pkg install -y git curl wget nano openssh
+```
+
+What each one does:
+- **git** — version control, cloning repos
+- **curl / wget** — downloading files and scripts
+- **nano** — simple text editor for editing files in terminal
+- **openssh** — SSH client for remote servers and GitHub
+
+---
+
+## Step 5 — Set up SSH keys for GitHub
+
+```bash
+ssh-keygen -t ed25519 -C "your@email.com"
+cat ~/.ssh/id_ed25519.pub
+```
+
+Copy the output → GitHub → Settings → SSH Keys → New SSH Key → paste it.
+
+Test the connection:
+```bash
+ssh -T git@github.com
+```
+
+You should see: `Hi username! You've successfully authenticated.`
+
+---
+
+## Step 6 — Configure git
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "your@email.com"
+git config --global init.defaultBranch main
+```
+
+---
+
+## You're ready
+
+- **Install Node.js** → [Node.js setup guide](/guides/nodejs-setup)
+- **Install Go** → [Go setup guide](/guides/go-setup)
+- **Browse the Script Vault** → [one-tap installs for everything](/vault)
+
+---
+
+## Troubleshooting
+
+**`pkg update` fails with network error**  
+Try switching Termux's mirror: `termux-change-repo` and select a different region.
+
+**Storage permission denied after `termux-setup-storage`**  
+Go to Android Settings → Apps → Termux → Permissions → Files and media → Allow.
+
+**SSH key not working with GitHub**  
+Make sure you copied the `.pub` file, not the private key. Run `cat ~/.ssh/id_ed25519.pub` again and re-paste.
