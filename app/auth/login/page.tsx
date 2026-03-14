@@ -18,6 +18,7 @@ export default function LoginPage() {
       options: {
         redirectTo: `https://forge.brgt.site/auth/callback`,
         scopes: "read:user user:email",
+        skipBrowserRedirect: false,
       },
     });
 
@@ -46,7 +47,6 @@ export default function LoginPage() {
 
       <main className="min-h-[80vh] flex flex-col items-center justify-center px-4">
         <div className="w-full max-w-sm">
-          {/* Header */}
           <div className="text-center mb-8">
             <h1 className="font-display font-bold text-2xl text-text-base">
               Sign in to <span className="text-gradient">Forge</span>
@@ -56,9 +56,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Card */}
           <div className="surface-card p-6 space-y-4">
-            {/* Error */}
             {error && (
               <div
                 style={{
@@ -75,7 +73,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* GitHub OAuth button */}
             <button
               onClick={handleGitHubLogin}
               disabled={loading}
@@ -132,4 +129,3 @@ export default function LoginPage() {
     </>
   );
           }
-                  
