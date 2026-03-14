@@ -68,7 +68,7 @@ function generateScript(options: ConfigOptions): string {
     ``,
     `# Update packages`,
     `echo "📦 Updating packages..."`,
-    `pkg update -y && pkg upgrade -y`,
+    `DEBIAN_FRONTEND=noninteractive pkg update -y && pkg upgrade -y --force-confold`,
     ``,
     `# Grant storage access`,
     `termux-setup-storage`,
