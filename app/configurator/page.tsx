@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createClient } from "../../lib/supabase/client";
 import type { ConfigOptions, Runtime, Shell, ExtraTool } from "../../lib/configurator";
 import { generateConfig, DEFAULT_OPTIONS } from "../../lib/configurator";
 import ConfigOutput from "../../components/ConfigOutput";
@@ -87,22 +88,19 @@ export default function ConfiguratorPage() {
 
     try {
       const config = generateConfig(options);
+      const supabase = createClient();
 
-      // Save via API route using service role key
-      const res = await fetch("/api/save-config", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          configId: config.configId,
+      const { error: dbError } = await supabase
+        .from("configs")
+        .insert({
+          config_id: config.configId,
           script: config.scriptPreview,
           options,
-        }),
-      });
+          created_at: new Date().toISOString(),
+        });
 
-      if (!res.ok) {
-        const data = await res.json();
-        console.error("Save failed:", data.error);
-        setError("Could not save config — curl URL may not work. You can still copy the script.");
+      if (dbError) {
+        console.error("Save error:", dbError.message);
       }
 
       setGenerated(config);
@@ -111,6 +109,7 @@ export default function ConfiguratorPage() {
         document.getElementById("output")?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     } catch (e) {
+      console.error(e);
       setError("Something went wrong. Try again.");
     } finally {
       setLoading(false);
@@ -119,7 +118,6 @@ export default function ConfiguratorPage() {
 
   return (
     <main className="max-w-2xl mx-auto px-4 py-12">
-      {/* Header */}
       <div className="mb-10">
         <div
           style={{
@@ -149,7 +147,6 @@ export default function ConfiguratorPage() {
       </div>
 
       <div className="space-y-8">
-        {/* Runtime */}
         <section>
           <SectionLabel step="01" label="Runtime" />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -165,7 +162,6 @@ export default function ConfiguratorPage() {
           </div>
         </section>
 
-        {/* Version */}
         <section>
           <SectionLabel step="02" label="Version" />
           <div style={{ display: "flex", gap: 8 }}>
@@ -181,7 +177,6 @@ export default function ConfiguratorPage() {
           </div>
         </section>
 
-        {/* Shell */}
         <section>
           <SectionLabel step="03" label="Shell" />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -200,7 +195,6 @@ export default function ConfiguratorPage() {
           </div>
         </section>
 
-        {/* Git + SSH */}
         <section>
           <SectionLabel step="04" label="Dev tools" />
           <div style={{ display: "flex", gap: 8 }}>
@@ -219,7 +213,6 @@ export default function ConfiguratorPage() {
           </div>
         </section>
 
-        {/* Extras */}
         <section>
           <SectionLabel step="05" label="Extra packages" />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
@@ -235,7 +228,6 @@ export default function ConfiguratorPage() {
           </div>
         </section>
 
-        {/* Error */}
         {error && (
           <div
             style={{
@@ -252,7 +244,6 @@ export default function ConfiguratorPage() {
           </div>
         )}
 
-        {/* Generate button */}
         <button
           onClick={handleGenerate}
           disabled={loading}
@@ -268,7 +259,6 @@ export default function ConfiguratorPage() {
           {loading ? "Generating..." : "Generate setup.sh →"}
         </button>
 
-        {/* Output */}
         {generated && (
           <section id="output" className="pt-4">
             <SectionLabel step="06" label="Your custom setup" />
@@ -284,4 +274,4 @@ export default function ConfiguratorPage() {
     </main>
   );
         }
-                  
+      
