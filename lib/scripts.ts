@@ -105,3 +105,19 @@ export async function searchScripts(query: string): Promise<Script[]> {
 
   return data as Script[];
 }
+import { createStaticClient } from "./supabase/static";
+
+// Used only in generateStaticParams — no cookies needed
+export async function getAllScriptSlugs(): Promise<string[]> {
+  const supabase = createStaticClient();
+  const { data, error } = await supabase
+    .from("scripts")
+    .select("slug");
+
+  if (error) {
+    console.error("Error fetching slugs:", error);
+    return [];
+  }
+
+  return data.map((s: { slug: string }) => s.slug);
+            }
