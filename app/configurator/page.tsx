@@ -106,9 +106,14 @@ export default function ConfiguratorPage() {
       });
 
     if (dbError) {
-      setError(`Could not save: ${dbError.message}`);
-    } else {
-      setSaved(true);
+  if (dbError.message.includes("duplicate")) {
+    // Config already exists — that's fine, still show it
+    setSaved(true);
+  } else {
+    setError("Could not save config. You can still copy the script below.");
+  }
+} else {
+  setSaved(true);
     }
 
     setGenerated(config);
