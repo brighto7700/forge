@@ -1,19 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "../lib/supabase/client";
 
 type Props = {
   scriptId: string;
-  initialBookmarked: boolean;
-  isLoggedIn: boolean;
 };
 
-export default function BookmarkButton({ scriptId, initialBookmarked, isLoggedIn }: Props) {
-  const [bookmarked, setBookmarked] = useState(initialBookmarked);
-  const [loading, setLoading] = useState(false);
+export default function BookmarkButton({ scriptId }: Props) {
+  const [bookmarked, setBookmarked] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
+  // Fetch bookmark state on mount
+  useEffect(() => {
+    async function checkBookmark() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        setIsLoggedIn(false);
+        setLoading(false);
+        return;
+      }
+
+      setIsLoggedIn(true);
+
+      const { data } = await supabase
+        .from("bookmarks")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("script_id", scriptId)
+        .single();
+
+      setBookmarked(!!data);
+      setLoading(false);
+    }
+
+    checkBookmark();
+  }, [scriptId]);
 
   async function handleBookmark() {
     if (!isLoggedIn) {
@@ -23,33 +50,24 @@ export default function BookmarkButton({ scriptId, initialBookmarked, isLoggedIn
 
     setLoading(true);
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
     if (bookmarked) {
-      // Remove bookmark
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       await supabase
         .from("bookmarks")
         .delete()
         .eq("user_id", user.id)
         .eq("script_id", scriptId);
-
       setBookmarked(false);
     } else {
-      // Add bookmark
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       await supabase
         .from("bookmarks")
         .insert({ user_id: user.id, script_id: scriptId });
-
       setBookmarked(true);
     }
 
     setLoading(false);
-    router.refresh();
   }
 
   return (
@@ -77,7 +95,6 @@ export default function BookmarkButton({ scriptId, initialBookmarked, isLoggedIn
         opacity: loading ? 0.6 : 1,
       }}
     >
-      {/* Bookmark icon */}
       <svg
         width="14"
         height="14"
@@ -94,5 +111,4 @@ export default function BookmarkButton({ scriptId, initialBookmarked, isLoggedIn
       {loading ? "..." : bookmarked ? "Bookmarked" : "Bookmark"}
     </button>
   );
-      }
-        
+}
