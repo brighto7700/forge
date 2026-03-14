@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "../../../lib/supabase/client";
 
-export default function ConfirmPage() {
+function ConfirmContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "error">("loading");
@@ -55,12 +55,24 @@ export default function ConfirmPage() {
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
       ) : (
-        <div>
-          <p className="font-mono text-sm text-red-400">
-            Auth failed. Redirecting...
-          </p>
-        </div>
+        <p className="font-mono text-sm text-red-400">
+          Auth failed. Redirecting...
+        </p>
       )}
     </main>
+  );
+}
+
+export default function ConfirmPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen flex items-center justify-center">
+          <p className="font-mono text-sm text-text-muted">Loading...</p>
+        </main>
+      }
+    >
+      <ConfirmContent />
+    </Suspense>
   );
 }
