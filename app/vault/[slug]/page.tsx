@@ -7,8 +7,8 @@ import { CopyButton } from "./CopyButton";
 // ── Static Params (SSG) ───────────────────────────────
 // Pre-renders every script page at build time → blazing fast + SEO perfect
 export async function generateStaticParams() {
-  const scripts = await getAllScripts();
-  return scripts.map((s) => ({ slug: s.slug }));
+  const slugs = await getAllScriptSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 // ── Per-page Metadata ─────────────────────────────────
