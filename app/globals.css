@@ -29,6 +29,11 @@ body {
   min-height: 100vh;
 }
 
+/* Nav is global in layout — hide page-level navs */
+header + header {
+  display: none;
+}
+
 ::selection {
   background: rgba(0, 255, 148, 0.2);
   color: #fff;
