@@ -72,7 +72,7 @@ function GuideJsonLd({
     dateModified: guide.updatedAt ?? guide.publishedAt,
     author: {
       "@type": "Person",
-      name: "Bright",
+      name: "Bright Emmanuel",
       url: "https://forge.brgt.site",
     },
     keywords: guide.tags.join(", "),
@@ -159,16 +159,16 @@ const mdxComponents = {
       <div className="text-sm text-text-muted italic">{children}</div>
     </blockquote>
   ),
-  a: ({ href, children }: { href?: string; children: React.ReactNode }) => (
-    <a
-      href={href}
-      className="text-primary hover:underline font-mono text-sm"
-      target={href?.startsWith("http") ? "_blank" : undefined}
-      rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
-    >
-      {children}
-    </a>
-  ),
+  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
+  <a
+    href={href}
+    className="text-primary hover:underline font-mono text-sm"
+    target={href?.startsWith("http") ? "_blank" : undefined}
+    rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
+  >
+    {children}
+  </a>
+),
   hr: () => <hr className="border-border my-8" />,
 };
 
