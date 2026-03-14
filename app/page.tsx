@@ -10,7 +10,6 @@ export const metadata: Metadata = {
   },
 };
 
-// ── Data ──────────────────────────────────────────────
 const features = [
   {
     icon: "⚡",
@@ -19,6 +18,7 @@ const features = [
       "A searchable library of battle-tested shell scripts built for Termux. Copy, curl, and run — from Node.js setups to Git automation.",
     href: "/vault",
     tag: "Browse scripts",
+    soon: false,
   },
   {
     icon: "⚙️",
@@ -36,6 +36,7 @@ const features = [
       "Step-by-step walkthroughs for setting up real development environments on Android. From Termux basics to full-stack deploys.",
     href: "/guides",
     tag: "Read guides",
+    soon: false,
   },
 ];
 
@@ -46,15 +47,14 @@ const stats = [
 ];
 
 const tracks = [
-  { name: "Node.js", color: "#68A063" },
-  { name: "Python", color: "#3776AB" },
-  { name: "Go", color: "#00ADD8" },
-  { name: "Git workflows", color: "#F05032" },
-  { name: "Vercel deploys", color: "#FFFFFF" },
-  { name: "API tools", color: "#FF6B6B" },
+  "Node.js",
+  "Python",
+  "Go",
+  "Git workflows",
+  "Vercel deploys",
+  "API tools",
 ];
 
-// ── Components ────────────────────────────────────────
 function NavBar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-bg/80 backdrop-blur-md">
@@ -67,7 +67,7 @@ function NavBar() {
           className="font-mono font-bold text-primary text-lg tracking-tight"
           aria-label="Forge home"
         >
-          forge<span className="animate-blink text-text-muted">_</span>
+          forge<span className="text-text-muted">_</span>
         </Link>
         <div className="flex items-center gap-1 sm:gap-2">
           <Link
@@ -96,55 +96,59 @@ function NavBar() {
 
 function HeroTerminal() {
   return (
-    <div className="terminal-block w-full max-w-xl mx-auto overflow-hidden">
-      {/* Terminal title bar */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
-        <span className="w-3 h-3 rounded-full bg-[#FF5F57]" />
-        <span className="w-3 h-3 rounded-full bg-[#FEBC2E]" />
-        <span className="w-3 h-3 rounded-full bg-[#28C840]" />
-        <span className="ml-2 text-xs text-text-muted font-mono">
+    <div
+      style={{
+        background: "#0a0a0a",
+        border: "1px solid #2A2A2A",
+        borderRadius: "8px",
+        width: "100%",
+        maxWidth: "480px",
+        margin: "0 auto",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          padding: "10px 16px",
+          borderBottom: "1px solid #2A2A2A",
+        }}
+      >
+        <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#FF5F57", display: "inline-block" }} />
+        <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#FEBC2E", display: "inline-block" }} />
+        <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#28C840", display: "inline-block" }} />
+        <span style={{ marginLeft: 8, fontSize: 12, color: "#666", fontFamily: "monospace" }}>
           termux ~ forge
         </span>
       </div>
-      {/* Terminal body */}
-      <div className="p-4 space-y-2 text-sm font-mono">
-        <div className="flex gap-2">
-          <span className="text-primary">$</span>
-          <span className="text-text-muted">
-            curl forge.brgt.site/setup/node.sh | bash
+      <div style={{ padding: "16px", fontFamily: "monospace", fontSize: 13 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <span style={{ color: "#00FF94" }}>$</span>
+          <span style={{ color: "#666" }}>curl forge.brgt.site/setup/node.sh | bash</span>
+        </div>
+        <div style={{ paddingLeft: 16, color: "#666", fontSize: 12, lineHeight: "1.8" }}>
+          <div><span style={{ color: "#00FF94" }}>✓</span> Updating packages...</div>
+          <div><span style={{ color: "#00FF94" }}>✓</span> Installing Node.js v20...</div>
+          <div><span style={{ color: "#00FF94" }}>✓</span> Configuring npm...</div>
+          <div><span style={{ color: "#00FF94" }}>✓</span> Setting up git...</div>
+        </div>
+        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+          <span style={{ color: "#00FF94" }}>$</span>
+          <span style={{ color: "#E8E8E8" }}>
+            node --version <span style={{ color: "#00FF94" }}>v20.11.0</span>
           </span>
         </div>
-        <div className="text-text-muted text-xs space-y-1 pl-4">
-          <p>
-            <span className="text-primary">✓</span> Updating packages...
-          </p>
-          <p>
-            <span className="text-primary">✓</span> Installing Node.js v20...
-          </p>
-          <p>
-            <span className="text-primary">✓</span> Configuring npm...
-          </p>
-          <p>
-            <span className="text-primary">✓</span> Setting up git...
-          </p>
-        </div>
-        <div className="flex gap-2 mt-2">
-          <span className="text-primary">$</span>
-          <span className="text-text-base">
-            node --version
-            <span className="ml-1 text-primary">v20.11.0</span>
-          </span>
-        </div>
-        <div className="flex gap-2">
-          <span className="text-primary">$</span>
-          <span className="text-text-muted animate-blink">▊</span>
+        <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+          <span style={{ color: "#00FF94" }}>$</span>
+          <span style={{ color: "#E8E8E8" }}>▊</span>
         </div>
       </div>
     </div>
   );
 }
 
-// ── Page ──────────────────────────────────────────────
 export default function HomePage() {
   return (
     <>
@@ -156,20 +160,51 @@ export default function HomePage() {
           className="relative min-h-screen flex flex-col items-center justify-center px-4 pt-20 pb-16 overflow-hidden"
           aria-labelledby="hero-heading"
         >
-          {/* Background effects */}
+          {/* Background grid */}
           <div
-            className="absolute inset-0 bg-grid-pattern bg-grid opacity-60 pointer-events-none"
+            className="absolute inset-0 opacity-60 pointer-events-none"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(0,255,148,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,148,0.03) 1px, transparent 1px)",
+              backgroundSize: "40px 40px",
+            }}
             aria-hidden="true"
           />
+          {/* Glow */}
           <div
-            className="absolute inset-0 bg-hero-glow pointer-events-none"
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,255,148,0.12), transparent)",
+            }}
             aria-hidden="true"
           />
 
           {/* Badge */}
-          <div className="relative z-10 mb-6 opacity-0-init animate-fade-in">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-mono">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+          <div className="relative z-10 mb-6">
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "6px 12px",
+                borderRadius: 999,
+                border: "1px solid rgba(0,255,148,0.2)",
+                background: "rgba(0,255,148,0.05)",
+                color: "#00FF94",
+                fontSize: 12,
+                fontFamily: "monospace",
+              }}
+            >
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: "#00FF94",
+                  display: "inline-block",
+                }}
+              />
               Built by a mobile dev, for mobile devs
             </span>
           </div>
@@ -178,13 +213,13 @@ export default function HomePage() {
           <div className="relative z-10 text-center max-w-3xl mx-auto">
             <h1
               id="hero-heading"
-              className="font-display font-bold text-4xl sm:text-5xl md:text-6xl leading-tight tracking-tight opacity-0-init animate-fade-up"
+              className="font-display font-bold text-4xl sm:text-5xl md:text-6xl leading-tight tracking-tight"
             >
               Code on Android.
               <br />
               <span className="text-gradient">Build real things.</span>
             </h1>
-            <p className="mt-6 text-text-muted text-base sm:text-lg leading-relaxed max-w-xl mx-auto opacity-0-init animate-fade-up animate-delay-100">
+            <p className="mt-6 text-text-muted text-base sm:text-lg leading-relaxed max-w-xl mx-auto">
               Forge is the developer hub for mobile coders — shell scripts,
               interactive Termux guides, and a one-tap environment configurator.
               No laptop required.
@@ -192,10 +227,11 @@ export default function HomePage() {
           </div>
 
           {/* CTAs */}
-          <div className="relative z-10 mt-8 flex flex-col sm:flex-row gap-3 opacity-0-init animate-fade-up animate-delay-200">
+          <div className="relative z-10 mt-8 flex flex-col sm:flex-row gap-3">
             <Link
               href="/guides"
-              className="px-6 py-3 bg-primary text-bg font-display font-semibold text-sm rounded-lg hover:bg-primary-dim transition-all hover:shadow-glow text-center"
+              className="px-6 py-3 bg-primary text-bg font-display font-semibold text-sm rounded-lg hover:bg-primary-dim transition-all text-center"
+              style={{ color: "#0D0D0D" }}
             >
               Start a guide →
             </Link>
@@ -207,13 +243,13 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Terminal preview */}
-          <div className="relative z-10 mt-12 w-full max-w-xl opacity-0-init animate-fade-up animate-delay-300">
+          {/* Terminal */}
+          <div className="relative z-10 mt-12 w-full max-w-xl px-4">
             <HeroTerminal />
           </div>
 
           {/* Stats */}
-          <div className="relative z-10 mt-12 flex gap-8 sm:gap-16 opacity-0-init animate-fade-up animate-delay-400">
+          <div className="relative z-10 mt-12 flex gap-8 sm:gap-16">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <p className="font-mono font-bold text-2xl text-primary">
@@ -249,7 +285,7 @@ export default function HomePage() {
               {features.map((feature) => (
                 <article
                   key={feature.title}
-                  className="surface-card p-6 hover:border-primary/20 hover:shadow-glow-sm transition-all group relative"
+                  className="surface-card p-6 hover:border-primary/20 transition-all group"
                 >
                   <span className="text-2xl" aria-hidden="true">
                     {feature.icon}
@@ -282,7 +318,8 @@ export default function HomePage() {
 
         {/* ── Language Tracks ── */}
         <section
-          className="py-16 px-4 bg-surface/30 border-y border-border"
+          className="py-16 px-4 border-y border-border"
+          style={{ background: "rgba(22,22,22,0.3)" }}
           aria-labelledby="tracks-heading"
         >
           <div className="max-w-6xl mx-auto text-center">
@@ -292,13 +329,28 @@ export default function HomePage() {
             >
               Guides and scripts for every stack
             </h2>
-            <div className="flex flex-wrap justify-center gap-3">
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: "12px",
+              }}
+            >
               {tracks.map((track) => (
                 <span
-                  key={track.name}
-                  className="px-4 py-2 font-mono text-sm border border-border rounded-full text-text-muted hover:border-primary/30 hover:text-text-base transition-all cursor-default"
+                  key={track}
+                  style={{
+                    padding: "8px 16px",
+                    fontFamily: "monospace",
+                    fontSize: 13,
+                    border: "1px solid #2A2A2A",
+                    borderRadius: 999,
+                    color: "#666",
+                    display: "inline-block",
+                  }}
                 >
-                  {track.name}
+                  {track}
                 </span>
               ))}
             </div>
@@ -328,7 +380,8 @@ export default function HomePage() {
             </p>
             <Link
               href="/guides/getting-started"
-              className="inline-block mt-8 px-8 py-3.5 bg-primary text-bg font-display font-semibold text-sm rounded-lg hover:bg-primary-dim transition-all hover:shadow-glow"
+              className="inline-block mt-8 px-8 py-3.5 bg-primary font-display font-semibold text-sm rounded-lg hover:bg-primary-dim transition-all"
+              style={{ color: "#0D0D0D" }}
             >
               Get started in 10 minutes →
             </Link>
@@ -346,18 +399,9 @@ export default function HomePage() {
             className="flex gap-6 text-xs text-text-muted"
             aria-label="Footer navigation"
           >
-            <Link href="/vault" className="hover:text-text-base transition-colors">
-              Vault
-            </Link>
-            <Link href="/guides" className="hover:text-text-base transition-colors">
-              Guides
-            </Link>
-            <Link
-              href="/configurator"
-              className="hover:text-text-base transition-colors"
-            >
-              Configurator
-            </Link>
+            <Link href="/vault" className="hover:text-text-base transition-colors">Vault</Link>
+            <Link href="/guides" className="hover:text-text-base transition-colors">Guides</Link>
+            <Link href="/configurator" className="hover:text-text-base transition-colors">Configurator</Link>
             <a
               href="https://github.com/brighto7700"
               target="_blank"
@@ -367,11 +411,10 @@ export default function HomePage() {
               GitHub
             </a>
           </nav>
-          <p className="text-xs text-text-faint font-mono">
-            built on android ✦
-          </p>
+          <p className="text-xs text-text-faint font-mono">built on android ✦</p>
         </div>
       </footer>
     </>
   );
-}
+        }
+          
