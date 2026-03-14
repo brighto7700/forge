@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, DM_Sans, Space_Grotesk } from "next/font/google";
+import Nav from "../components/Nav";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -130,6 +131,7 @@ export default function RootLayout({
       <body
         className={`${jetbrainsMono.variable} ${dmSans.variable} ${spaceGrotesk.variable} bg-bg text-text-base font-sans antialiased`}
       >
+        <Nav />
         {children}
       </body>
     </html>
