@@ -3,10 +3,10 @@
 import { useState } from "react";
 import type { ConfigOptions, Runtime, Shell, ExtraTool } from "../../lib/configurator";
 import { generateConfig, DEFAULT_OPTIONS } from "../../lib/configurator";
+import { createClient } from "../../lib/supabase/client";
 import ConfigOutput from "../../components/ConfigOutput";
 import type { GeneratedConfig } from "../../lib/configurator";
 
-// ── Option data ───────────────────────────────────────
 const RUNTIMES: { value: Runtime; label: string; icon: string }[] = [
   { value: "node", label: "Node.js", icon: "⬢" },
   { value: "python", label: "Python", icon: "🐍" },
@@ -29,7 +29,6 @@ const EXTRAS: { value: ExtraTool; label: string }[] = [
   { value: "jq", label: "jq" },
 ];
 
-// ── Option button component ───────────────────────────
 function OptionBtn({
   selected,
   onClick,
@@ -59,7 +58,6 @@ function OptionBtn({
   );
 }
 
-// ── Section label ─────────────────────────────────────
 function SectionLabel({ step, label }: { step: string; label: string }) {
   return (
     <div className="flex items-center gap-2 mb-3">
@@ -69,10 +67,11 @@ function SectionLabel({ step, label }: { step: string; label: string }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────
 export default function ConfiguratorPage() {
   const [options, setOptions] = useState<ConfigOptions>(DEFAULT_OPTIONS);
   const [generated, setGenerated] = useState<GeneratedConfig | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function toggleExtra(tool: ExtraTool) {
     setOptions((prev) => ({
@@ -83,13 +82,39 @@ export default function ConfiguratorPage() {
     }));
   }
 
-  function handleGenerate() {
-    const config = generateConfig(options);
-    setGenerated(config);
-    // Scroll to output
-    setTimeout(() => {
-      document.getElementById("output")?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+  async function handleGenerate() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const config = generateConfig(options);
+
+      // Save script to Supabase
+      const supabase = createClient();
+      const { error: dbError } = await supabase
+        .from("configs")
+        .upsert({
+          config_id: config.configId,
+          script: config.scriptPreview,
+          options: options,
+          created_at: new Date().toISOString(),
+        });
+
+      if (dbError) {
+        console.error("Save error:", dbError);
+        setError("Could not save config. You can still copy the script below.");
+      }
+
+      setGenerated(config);
+
+      setTimeout(() => {
+        document.getElementById("output")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } catch (e) {
+      setError("Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -119,13 +144,13 @@ export default function ConfiguratorPage() {
           <span className="text-gradient">Termux setup.</span>
         </h1>
         <p className="text-text-muted text-sm mt-3 leading-relaxed">
-          Pick your stack. Get a custom <code>setup.sh</code> you can curl straight into Termux.
+          Pick your stack. Get a real <code>curl | bash</code> command you can run straight in Termux.
         </p>
       </div>
 
       <div className="space-y-8">
         {/* Runtime */}
-        <section aria-labelledby="runtime-label">
+        <section>
           <SectionLabel step="01" label="Runtime" />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {RUNTIMES.map((r) => (
@@ -141,7 +166,7 @@ export default function ConfiguratorPage() {
         </section>
 
         {/* Version */}
-        <section aria-labelledby="version-label">
+        <section>
           <SectionLabel step="02" label="Version" />
           <div style={{ display: "flex", gap: 8 }}>
             {(["lts", "latest"] as const).map((v) => (
@@ -157,7 +182,7 @@ export default function ConfiguratorPage() {
         </section>
 
         {/* Shell */}
-        <section aria-labelledby="shell-label">
+        <section>
           <SectionLabel step="03" label="Shell" />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {SHELLS.map((s) => (
@@ -176,7 +201,7 @@ export default function ConfiguratorPage() {
         </section>
 
         {/* Git + SSH */}
-        <section aria-labelledby="tools-label">
+        <section>
           <SectionLabel step="04" label="Dev tools" />
           <div style={{ display: "flex", gap: 8 }}>
             <OptionBtn
@@ -194,8 +219,8 @@ export default function ConfiguratorPage() {
           </div>
         </section>
 
-        {/* Extra tools */}
-        <section aria-labelledby="extras-label">
+        {/* Extras */}
+        <section>
           <SectionLabel step="05" label="Extra packages" />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
             {EXTRAS.map((e) => (
@@ -210,34 +235,53 @@ export default function ConfiguratorPage() {
           </div>
         </section>
 
+        {/* Error */}
+        {error && (
+          <div
+            style={{
+              padding: "10px 14px",
+              borderRadius: 8,
+              background: "rgba(255,95,87,0.08)",
+              border: "1px solid rgba(255,95,87,0.2)",
+              color: "#FF5F57",
+              fontSize: 13,
+              fontFamily: "monospace",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
         {/* Generate button */}
         <button
           onClick={handleGenerate}
-          className="w-full py-4 font-display font-bold text-base rounded-lg transition-all hover:opacity-90"
+          disabled={loading}
+          className="w-full py-4 font-display font-bold text-base rounded-lg transition-all"
           style={{
-            background: "#00FF94",
+            background: loading ? "#00CC77" : "#00FF94",
             color: "#0D0D0D",
             border: "none",
-            cursor: "pointer",
+            cursor: loading ? "not-allowed" : "pointer",
+            opacity: loading ? 0.8 : 1,
           }}
         >
-          Generate setup.sh →
+          {loading ? "Generating..." : "Generate setup.sh →"}
         </button>
 
         {/* Output */}
         {generated && (
-          <section id="output" aria-labelledby="output-label" className="pt-4">
+          <section id="output" className="pt-4">
             <SectionLabel step="06" label="Your custom setup" />
             <div className="surface-card p-5">
               <ConfigOutput config={generated} />
             </div>
             <p className="text-xs text-text-muted font-mono mt-3 text-center">
-              This script is generated client-side — inspect before running.
+              This URL is permanent — share it or bookmark it.
             </p>
           </section>
         )}
       </div>
     </main>
   );
-        }
-          
+    }
+    
