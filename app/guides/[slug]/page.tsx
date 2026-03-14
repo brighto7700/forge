@@ -7,7 +7,7 @@ import {
   getAllGuideSlugs,
   TRACKS,
   DIFFICULTY_COLORS,
-} from "../../lib/guides";
+} from "../../../lib/guides";
 
 // ── Static Params (SSG) ───────────────────────────────
 export async function generateStaticParams() {
