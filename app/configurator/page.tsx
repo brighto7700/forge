@@ -3,7 +3,6 @@
 import { useState } from "react";
 import type { ConfigOptions, Runtime, Shell, ExtraTool } from "../../lib/configurator";
 import { generateConfig, DEFAULT_OPTIONS } from "../../lib/configurator";
-import { createClient } from "../../lib/supabase/client";
 import ConfigOutput from "../../components/ConfigOutput";
 import type { GeneratedConfig } from "../../lib/configurator";
 
@@ -89,20 +88,21 @@ export default function ConfiguratorPage() {
     try {
       const config = generateConfig(options);
 
-      // Save script to Supabase
-      const supabase = createClient();
-      const { error: dbError } = await supabase
-        .from("configs")
-        .upsert({
-          config_id: config.configId,
+      // Save via API route using service role key
+      const res = await fetch("/api/save-config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          configId: config.configId,
           script: config.scriptPreview,
-          options: options,
-          created_at: new Date().toISOString(),
-        });
+          options,
+        }),
+      });
 
-      if (dbError) {
-        console.error("Save error:", dbError);
-        setError("Could not save config. You can still copy the script below.");
+      if (!res.ok) {
+        const data = await res.json();
+        console.error("Save failed:", data.error);
+        setError("Could not save config — curl URL may not work. You can still copy the script.");
       }
 
       setGenerated(config);
@@ -276,12 +276,12 @@ export default function ConfiguratorPage() {
               <ConfigOutput config={generated} />
             </div>
             <p className="text-xs text-text-muted font-mono mt-3 text-center">
-              This URL is permanent — share it or bookmark it.
+              This URL is permanent — share it or curl it anytime.
             </p>
           </section>
         )}
       </div>
     </main>
   );
-    }
-    
+        }
+                  
