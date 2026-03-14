@@ -1,5 +1,24 @@
 import type { Metadata } from "next";
+import { JetBrains_Mono, DM_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 const siteConfig = {
   name: "Forge",
@@ -67,7 +86,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon-16x16.png",
@@ -88,7 +106,7 @@ export default function RootLayout({
     description: siteConfig.description,
     author: {
       "@type": "Person",
-      name: "Bright Emmanuel",
+      name: "Bright",
       url: siteConfig.url,
     },
     potentialAction: {
@@ -109,9 +127,11 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="bg-bg text-text-base font-sans antialiased">
+      <body
+        className={`${jetbrainsMono.variable} ${dmSans.variable} ${spaceGrotesk.variable} bg-bg text-text-base font-sans antialiased`}
+      >
         {children}
       </body>
     </html>
   );
-}
+    }
