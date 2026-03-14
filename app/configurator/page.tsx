@@ -1,86 +1,243 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = {
-  title: "One-Tap Configurator — Coming Soon",
-  description:
-    "Pick your runtime, tools, and shell. Get a custom setup.sh you can curl directly into Termux. Coming soon to Forge.",
-  alternates: {
-    canonical: "https://forge.brgt.site/configurator",
-  },
-};
+import { useState } from "react";
+import type { ConfigOptions, Runtime, Shell, ExtraTool } from "../../lib/configurator";
+import { generateConfig, DEFAULT_OPTIONS } from "../../lib/configurator";
+import ConfigOutput from "../../components/ConfigOutput";
+import type { GeneratedConfig } from "../../lib/configurator";
 
-export default function ConfiguratorPage() {
+// ── Option data ───────────────────────────────────────
+const RUNTIMES: { value: Runtime; label: string; icon: string }[] = [
+  { value: "node", label: "Node.js", icon: "⬢" },
+  { value: "python", label: "Python", icon: "🐍" },
+  { value: "go", label: "Go", icon: "🐹" },
+  { value: "java", label: "Java", icon: "☕" },
+];
+
+const SHELLS: { value: Shell; label: string; desc: string }[] = [
+  { value: "bash", label: "bash", desc: "Default, most compatible" },
+  { value: "zsh", label: "zsh", desc: "Powerful, oh-my-zsh ready" },
+  { value: "fish", label: "fish", desc: "Friendly, auto-suggestions" },
+];
+
+const EXTRAS: { value: ExtraTool; label: string }[] = [
+  { value: "curl", label: "curl" },
+  { value: "wget", label: "wget" },
+  { value: "nano", label: "nano" },
+  { value: "vim", label: "vim" },
+  { value: "htop", label: "htop" },
+  { value: "jq", label: "jq" },
+];
+
+// ── Option button component ───────────────────────────
+function OptionBtn({
+  selected,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <>
-      <header className="border-b border-border bg-bg/80 backdrop-blur-md sticky top-0 z-50">
-        <nav
-          className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-4"
-          aria-label="Main navigation"
-        >
-          <Link href="/" className="font-mono text-primary font-bold text-base mr-2" aria-label="Forge home">
-            forge_
-          </Link>
-          <span className="text-border">|</span>
-          <span className="text-text-base text-sm font-display font-medium">Configurator</span>
-        </nav>
-      </header>
+    <button
+      onClick={onClick}
+      style={{
+        padding: "8px 14px",
+        borderRadius: 8,
+        border: selected ? "1px solid rgba(0,255,148,0.4)" : "1px solid #2A2A2A",
+        background: selected ? "rgba(0,255,148,0.08)" : "#161616",
+        color: selected ? "#00FF94" : "#666",
+        fontSize: 13,
+        fontFamily: "monospace",
+        cursor: "pointer",
+        transition: "all 0.15s",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 
-      <main className="min-h-[80vh] flex flex-col items-center justify-center px-4 text-center">
+// ── Section label ─────────────────────────────────────
+function SectionLabel({ step, label }: { step: string; label: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-3">
+      <span className="font-mono text-primary text-xs">{step}</span>
+      <h2 className="font-display font-semibold text-sm text-text-base">{label}</h2>
+    </div>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────
+export default function ConfiguratorPage() {
+  const [options, setOptions] = useState<ConfigOptions>(DEFAULT_OPTIONS);
+  const [generated, setGenerated] = useState<GeneratedConfig | null>(null);
+
+  function toggleExtra(tool: ExtraTool) {
+    setOptions((prev) => ({
+      ...prev,
+      extras: prev.extras.includes(tool)
+        ? prev.extras.filter((e) => e !== tool)
+        : [...prev.extras, tool],
+    }));
+  }
+
+  function handleGenerate() {
+    const config = generateConfig(options);
+    setGenerated(config);
+    // Scroll to output
+    setTimeout(() => {
+      document.getElementById("output")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  }
+
+  return (
+    <main className="max-w-2xl mx-auto px-4 py-12">
+      {/* Header */}
+      <div className="mb-10">
         <div
           style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "6px 14px", borderRadius: 999,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "5px 12px",
+            borderRadius: 999,
             border: "1px solid rgba(0,255,148,0.2)",
             background: "rgba(0,255,148,0.05)",
-            color: "#00FF94", fontSize: 12, fontFamily: "monospace", marginBottom: 24,
+            color: "#00FF94",
+            fontSize: 11,
+            fontFamily: "monospace",
+            marginBottom: 16,
           }}
         >
           <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#00FF94", display: "inline-block" }} />
-          Phase 2 — In progress
+          One-Tap Configurator
         </div>
-
-        <h1 className="font-display font-bold text-3xl sm:text-4xl leading-tight max-w-lg">
-          One-Tap <span className="text-gradient">Configurator</span>
+        <h1 className="font-display font-bold text-3xl sm:text-4xl leading-tight">
+          Build your{" "}
+          <span className="text-gradient">Termux setup.</span>
         </h1>
-
-        <p className="text-text-muted text-sm mt-4 max-w-md leading-relaxed">
-          Pick your runtime, tools, and shell preference. Get a fully custom{" "}
-          <code>setup.sh</code> you can curl straight into Termux. No manual config. No guesswork.
+        <p className="text-text-muted text-sm mt-3 leading-relaxed">
+          Pick your stack. Get a custom <code>setup.sh</code> you can curl straight into Termux.
         </p>
+      </div>
 
-        <div className="terminal-block mt-10 w-full max-w-sm text-left" aria-hidden="true">
-          <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", borderBottom: "1px solid #2A2A2A" }}>
-            <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FF5F57", display: "inline-block" }} />
-            <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#FEBC2E", display: "inline-block" }} />
-            <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#28C840", display: "inline-block" }} />
-            <span style={{ marginLeft: 8, fontSize: 11, color: "#666", fontFamily: "monospace" }}>configurator preview</span>
+      <div className="space-y-8">
+        {/* Runtime */}
+        <section aria-labelledby="runtime-label">
+          <SectionLabel step="01" label="Runtime" />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {RUNTIMES.map((r) => (
+              <OptionBtn
+                key={r.value}
+                selected={options.runtime === r.value}
+                onClick={() => setOptions((p) => ({ ...p, runtime: r.value }))}
+              >
+                {r.icon} {r.label}
+              </OptionBtn>
+            ))}
           </div>
-          <div style={{ padding: 16, fontFamily: "monospace", fontSize: 12, color: "#666", lineHeight: 2 }}>
-            <div><span style={{ color: "#00FF94" }}>?</span> Runtime: <span style={{ color: "#E8E8E8" }}>Node.js</span></div>
-            <div><span style={{ color: "#00FF94" }}>?</span> Version: <span style={{ color: "#E8E8E8" }}>LTS</span></div>
-            <div><span style={{ color: "#00FF94" }}>?</span> Shell: <span style={{ color: "#E8E8E8" }}>bash</span></div>
-            <div><span style={{ color: "#00FF94" }}>?</span> Git: <span style={{ color: "#E8E8E8" }}>yes</span></div>
-            <div style={{ marginTop: 8, color: "#00FF94" }}>✓ Generating setup.sh...</div>
-            <div style={{ color: "#666", marginTop: 4 }}>curl -fsSL forge.brgt.site/c/abc123 | bash</div>
+        </section>
+
+        {/* Version */}
+        <section aria-labelledby="version-label">
+          <SectionLabel step="02" label="Version" />
+          <div style={{ display: "flex", gap: 8 }}>
+            {(["lts", "latest"] as const).map((v) => (
+              <OptionBtn
+                key={v}
+                selected={options.version === v}
+                onClick={() => setOptions((p) => ({ ...p, version: v }))}
+              >
+                {v === "lts" ? "LTS (recommended)" : "Latest"}
+              </OptionBtn>
+            ))}
           </div>
-        </div>
+        </section>
 
-        <div className="flex flex-col sm:flex-row gap-3 mt-10">
-          <Link href="/vault" className="px-6 py-3 bg-primary font-display font-semibold text-sm rounded-lg hover:bg-primary-dim transition-all text-center" style={{ color: "#0D0D0D" }}>
-            Browse Script Vault →
-          </Link>
-          <Link href="/guides" className="px-6 py-3 surface-card text-text-base font-display font-semibold text-sm rounded-lg hover:border-primary/30 transition-all text-center">
-            Read the guides
-          </Link>
-        </div>
-      </main>
+        {/* Shell */}
+        <section aria-labelledby="shell-label">
+          <SectionLabel step="03" label="Shell" />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {SHELLS.map((s) => (
+              <OptionBtn
+                key={s.value}
+                selected={options.shell === s.value}
+                onClick={() => setOptions((p) => ({ ...p, shell: s.value }))}
+              >
+                {s.label}
+                <span style={{ color: "#444", fontSize: 11, marginLeft: 6 }}>
+                  {s.desc}
+                </span>
+              </OptionBtn>
+            ))}
+          </div>
+        </section>
 
-      <footer className="border-t border-border py-8 px-4" role="contentinfo">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-xs text-text-muted font-mono">forge.brgt.site — built on android ✦</p>
-        </div>
-      </footer>
-    </>
+        {/* Git + SSH */}
+        <section aria-labelledby="tools-label">
+          <SectionLabel step="04" label="Dev tools" />
+          <div style={{ display: "flex", gap: 8 }}>
+            <OptionBtn
+              selected={options.git}
+              onClick={() => setOptions((p) => ({ ...p, git: !p.git }))}
+            >
+              Git {options.git ? "✓" : ""}
+            </OptionBtn>
+            <OptionBtn
+              selected={options.ssh}
+              onClick={() => setOptions((p) => ({ ...p, ssh: !p.ssh }))}
+            >
+              SSH Keys {options.ssh ? "✓" : ""}
+            </OptionBtn>
+          </div>
+        </section>
+
+        {/* Extra tools */}
+        <section aria-labelledby="extras-label">
+          <SectionLabel step="05" label="Extra packages" />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {EXTRAS.map((e) => (
+              <OptionBtn
+                key={e.value}
+                selected={options.extras.includes(e.value)}
+                onClick={() => toggleExtra(e.value)}
+              >
+                {e.label}
+              </OptionBtn>
+            ))}
+          </div>
+        </section>
+
+        {/* Generate button */}
+        <button
+          onClick={handleGenerate}
+          className="w-full py-4 font-display font-bold text-base rounded-lg transition-all hover:opacity-90"
+          style={{
+            background: "#00FF94",
+            color: "#0D0D0D",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Generate setup.sh →
+        </button>
+
+        {/* Output */}
+        {generated && (
+          <section id="output" aria-labelledby="output-label" className="pt-4">
+            <SectionLabel step="06" label="Your custom setup" />
+            <div className="surface-card p-5">
+              <ConfigOutput config={generated} />
+            </div>
+            <p className="text-xs text-text-muted font-mono mt-3 text-center">
+              This script is generated client-side — inspect before running.
+            </p>
+          </section>
+        )}
+      </div>
+    </main>
   );
-}
+        }
+          
