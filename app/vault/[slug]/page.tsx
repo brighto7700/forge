@@ -1,4 +1,3 @@
-export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,8 +7,6 @@ import {
   CATEGORIES,
   DIFFICULTY_COLORS,
 } from "../../../lib/scripts";
-import { getUser } from "../../../lib/auth";
-import { createClient } from "../../../lib/supabase/server";
 import { CopyButton } from "./CopyButton";
 import BookmarkButton from "../../../components/BookmarkButton";
 
@@ -128,21 +125,6 @@ export default async function ScriptPage({
   const script = await getScriptBySlug(params.slug);
   if (!script) notFound();
 
-  // Check auth + bookmark status
-  const user = await getUser();
-  let isBookmarked = false;
-
-  if (user) {
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("bookmarks")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("script_id", script.id)
-      .single();
-    isBookmarked = !!data;
-  }
-
   const category = CATEGORIES[script.category as keyof typeof CATEGORIES];
   const diffColor = DIFFICULTY_COLORS[script.difficulty];
 
@@ -183,11 +165,7 @@ export default async function ScriptPage({
               {script.title}
             </h1>
             <div className="shrink-0 mt-1">
-              <BookmarkButton
-                scriptId={script.id}
-                initialBookmarked={isBookmarked}
-                isLoggedIn={!!user}
-              />
+              <BookmarkButton scriptId={script.id} />
             </div>
           </div>
 
@@ -310,5 +288,5 @@ export default async function ScriptPage({
       </footer>
     </>
   );
-  }
-        
+              }
+          
