@@ -90,14 +90,17 @@ export default function ConfiguratorPage() {
       const config = generateConfig(options);
       const supabase = createClient();
 
-      const { error: dbError } = await supabase
-        .from("configs")
-        .insert({
-          config_id: config.configId,
-          script: config.scriptPreview,
-          options,
-          created_at: new Date().toISOString(),
-        });
+      const { data: { user } } = await supabase.auth.getUser();
+
+const { error: dbError } = await supabase
+  .from("configs")
+  .insert({
+    config_id: config.configId,
+    script: config.scriptPreview,
+    options,
+    user_id: user?.id ?? null,
+    created_at: new Date().toISOString(),
+  });
 
       if (dbError) {
         console.error("Save error:", dbError.message);
