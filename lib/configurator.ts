@@ -75,17 +75,14 @@ function generateScript(options: ConfigOptions): string {
     ``,
   ];
 
-  // Runtime
   lines.push(RUNTIME_INSTALL[runtime](runtimeVersion));
   lines.push(``);
 
-  // Shell
   if (shell !== "bash") {
     lines.push(SHELL_SETUP[shell]);
     lines.push(``);
   }
 
-  // Git
   if (git) {
     lines.push(`# Install Git`);
     lines.push(`pkg install -y git`);
@@ -99,7 +96,6 @@ function generateScript(options: ConfigOptions): string {
     lines.push(``);
   }
 
-  // SSH
   if (ssh) {
     lines.push(`# Generate SSH key`);
     lines.push(`pkg install -y openssh`);
@@ -112,7 +108,6 @@ function generateScript(options: ConfigOptions): string {
     lines.push(``);
   }
 
-  // Extra tools
   if (extras.length > 0) {
     lines.push(`# Extra tools`);
     lines.push(`pkg install -y ${extras.join(" ")}`);
@@ -126,7 +121,6 @@ function generateScript(options: ConfigOptions): string {
   return lines.join("\n");
 }
 
-// Generate a short config ID for sharing
 function generateConfigId(options: ConfigOptions): string {
   const parts = [
     options.runtime,
@@ -135,10 +129,11 @@ function generateConfigId(options: ConfigOptions): string {
     options.git ? "g" : "",
     options.ssh ? "s" : "",
     options.extras.join(""),
+    Date.now().toString(36),
   ]
     .filter(Boolean)
     .join("-");
-  return btoa(parts).replace(/[^a-zA-Z0-9]/g, "").slice(0, 8);
+  return btoa(parts).replace(/[^a-zA-Z0-9]/g, "").slice(0, 10);
 }
 
 export function generateConfig(options: ConfigOptions): GeneratedConfig {
@@ -161,3 +156,4 @@ export const DEFAULT_OPTIONS: ConfigOptions = {
   ssh: true,
   extras: ["curl", "wget", "nano"],
 };
+    
