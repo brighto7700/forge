@@ -72,6 +72,7 @@ export default function ConfiguratorPage() {
   const [generated, setGenerated] = useState<GeneratedConfig | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
   function toggleExtra(tool: ExtraTool) {
     setOptions((prev) => ({
@@ -85,38 +86,37 @@ export default function ConfiguratorPage() {
   async function handleGenerate() {
     setLoading(true);
     setError(null);
+    setSaved(false);
 
-    try {
-      const config = generateConfig(options);
-      const supabase = createClient();
+    const config = generateConfig(options);
+    const supabase = createClient();
 
-      const { data: { user } } = await supabase.auth.getUser();
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
 
-const { error: dbError } = await supabase
-  .from("configs")
-  .insert({
-    config_id: config.configId,
-    script: config.scriptPreview,
-    options,
-    user_id: user?.id ?? null,
-    created_at: new Date().toISOString(),
-  });
+    // Insert config
+    const { error: dbError } = await supabase
+      .from("configs")
+      .insert({
+        config_id: config.configId,
+        script: config.scriptPreview,
+        options: options,
+        user_id: user?.id ?? null,
+        created_at: new Date().toISOString(),
+      });
 
-      if (dbError) {
-        console.error("Save error:", dbError.message);
-      }
-
-      setGenerated(config);
-
-      setTimeout(() => {
-        document.getElementById("output")?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    } catch (e) {
-      console.error(e);
-      setError("Something went wrong. Try again.");
-    } finally {
-      setLoading(false);
+    if (dbError) {
+      setError(`Could not save: ${dbError.message}`);
+    } else {
+      setSaved(true);
     }
+
+    setGenerated(config);
+    setLoading(false);
+
+    setTimeout(() => {
+      document.getElementById("output")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   }
 
   return (
@@ -231,6 +231,7 @@ const { error: dbError } = await supabase
           </div>
         </section>
 
+        {/* Error message — shows exact Supabase error on screen */}
         {error && (
           <div
             style={{
@@ -244,6 +245,23 @@ const { error: dbError } = await supabase
             }}
           >
             {error}
+          </div>
+        )}
+
+        {/* Success message */}
+        {saved && (
+          <div
+            style={{
+              padding: "10px 14px",
+              borderRadius: 8,
+              background: "rgba(0,255,148,0.08)",
+              border: "1px solid rgba(0,255,148,0.2)",
+              color: "#00FF94",
+              fontSize: 13,
+              fontFamily: "monospace",
+            }}
+          >
+            ✓ Config saved to your dashboard
           </div>
         )}
 
@@ -276,5 +294,4 @@ const { error: dbError } = await supabase
       </div>
     </main>
   );
-        }
-      
+}
