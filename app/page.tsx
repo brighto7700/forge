@@ -26,8 +26,8 @@ const features = [
     description:
       "Pick your runtime, tools, and shell. Get a custom setup.sh you can curl directly into Termux. Your environment, your way.",
     href: "/configurator",
-    tag: "Coming soon",
-    soon: true,
+    tag: "Test it now",
+    soon: false,
   },
   {
     icon: "📖",
