@@ -402,6 +402,7 @@ export default function HomePage() {
             <Link href="/vault" className="hover:text-text-base transition-colors">Vault</Link>
             <Link href="/guides" className="hover:text-text-base transition-colors">Guides</Link>
             <Link href="/configurator" className="hover:text-text-base transition-colors">Configurator</Link>
+            <Link href="/privacy" className="hover:text-text-base transition-colors">Privacy</Link>
             <a
               href="https://github.com/brighto7700"
               target="_blank"
